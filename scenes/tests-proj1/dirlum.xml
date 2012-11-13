@@ -6,7 +6,7 @@
 
 	The direction associated with this pixel is given by
 		d = [0.27374   0.30492  -0.91219]
-	i.e. cos(theta)=0.34092.
+	i.e. cos(theta)=0.30492.
 
 	The luminance at the origin is given by (ignoring minor 
 	details such as how the environment map is interpolated)
