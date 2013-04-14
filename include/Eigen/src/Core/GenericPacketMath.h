@@ -4,27 +4,14 @@
 // Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
 // Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
 //
-// Eigen is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3 of the License, or (at your option) any later version.
-//
-// Alternatively, you can redistribute it and/or
-// modify it under the terms of the GNU General Public License as
-// published by the Free Software Foundation; either version 2 of
-// the License, or (at your option) any later version.
-//
-// Eigen is distributed in the hope that it will be useful, but WITHOUT ANY
-// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License or the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public
-// License and a copy of the GNU General Public License along with
-// Eigen. If not, see <http://www.gnu.org/licenses/>.
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #ifndef EIGEN_GENERIC_PACKET_MATH_H
 #define EIGEN_GENERIC_PACKET_MATH_H
+
+namespace Eigen {
 
 namespace internal {
 
@@ -143,7 +130,7 @@ pmax(const Packet& a,
 
 /** \internal \returns the absolute value of \a a */
 template<typename Packet> inline Packet
-pabs(const Packet& a) { return abs(a); }
+pabs(const Packet& a) { using std::abs; return abs(a); }
 
 /** \internal \returns the bitwise and of \a a and \a b */
 template<typename Packet> inline Packet
@@ -228,7 +215,12 @@ template<typename Packet> inline Packet preverse(const Packet& a)
 
 /** \internal \returns \a a with real and imaginary part flipped (for complex type only) */
 template<typename Packet> inline Packet pcplxflip(const Packet& a)
-{ return Packet(imag(a),real(a)); }
+{
+  // FIXME: uncomment the following in case we drop the internal imag and real functions.
+//   using std::imag;
+//   using std::real;
+  return Packet(imag(a),real(a));
+}
 
 /**************************
 * Special math functions
@@ -236,35 +228,35 @@ template<typename Packet> inline Packet pcplxflip(const Packet& a)
 
 /** \internal \returns the sine of \a a (coeff-wise) */
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-Packet psin(const Packet& a) { return sin(a); }
+Packet psin(const Packet& a) { using std::sin; return sin(a); }
 
 /** \internal \returns the cosine of \a a (coeff-wise) */
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-Packet pcos(const Packet& a) { return cos(a); }
+Packet pcos(const Packet& a) { using std::cos; return cos(a); }
 
 /** \internal \returns the tan of \a a (coeff-wise) */
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-Packet ptan(const Packet& a) { return tan(a); }
+Packet ptan(const Packet& a) { using std::tan; return tan(a); }
 
 /** \internal \returns the arc sine of \a a (coeff-wise) */
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-Packet pasin(const Packet& a) { return asin(a); }
+Packet pasin(const Packet& a) { using std::asin; return asin(a); }
 
 /** \internal \returns the arc cosine of \a a (coeff-wise) */
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-Packet pacos(const Packet& a) { return acos(a); }
+Packet pacos(const Packet& a) { using std::acos; return acos(a); }
 
 /** \internal \returns the exp of \a a (coeff-wise) */
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-Packet pexp(const Packet& a) { return exp(a); }
+Packet pexp(const Packet& a) { using std::exp; return exp(a); }
 
 /** \internal \returns the log of \a a (coeff-wise) */
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-Packet plog(const Packet& a) { return log(a); }
+Packet plog(const Packet& a) { using std::log; return log(a); }
 
 /** \internal \returns the square-root of \a a (coeff-wise) */
 template<typename Packet> EIGEN_DECLARE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS
-Packet psqrt(const Packet& a) { return sqrt(a); }
+Packet psqrt(const Packet& a) { using std::sqrt; return sqrt(a); }
 
 /***************************************************************************
 * The following functions might not have to be overwritten for vectorized types
@@ -312,7 +304,7 @@ template<int Offset,typename PacketType>
 struct palign_impl
 {
   // by default data are aligned, so there is nothing to be done :)
-  inline static void run(PacketType&, const PacketType&) {}
+  static inline void run(PacketType&, const PacketType&) {}
 };
 
 /** \internal update \a first using the concatenation of the \a Offset last elements
@@ -334,6 +326,8 @@ template<> inline std::complex<double> pmul(const std::complex<double>& a, const
 { return std::complex<double>(real(a)*real(b) - imag(a)*imag(b), imag(a)*real(b) + real(a)*imag(b)); }
 
 } // end namespace internal
+
+} // end namespace Eigen
 
 #endif // EIGEN_GENERIC_PACKET_MATH_H
 
