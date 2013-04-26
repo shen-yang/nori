@@ -335,9 +335,14 @@ NoriObject *loadScene(const QString &filename) {
 	file.seek(0);
 	QXmlSimpleReader reader;
 	reader.setContentHandler(&parser);
+	QFileInfo info(filename);
+	QString savePath = QDir::currentPath();
+	QString newPath = savePath + QDir::separator() + info.path();
+	QDir::setCurrent(newPath);
 	if (!reader.parse(source)) 
 		throw NoriException(QString("Unable to parse the file \"%1\"").arg(filename));
-
+	QDir::setCurrent(savePath);
+	cout << qPrintable(QDir::currentPath()) << endl;
 	return parser.getRoot();
 }
 

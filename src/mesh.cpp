@@ -19,6 +19,7 @@
 #include <nori/mesh.h>
 #include <nori/bbox.h>
 #include <nori/bsdf.h>
+#include <nori/luminaire.h>
 #include <Eigen/Geometry>
 
 #define NORI_TRICLIP_MAXVERTS 10
@@ -27,7 +28,7 @@ NORI_NAMESPACE_BEGIN
 
 Mesh::Mesh() : m_vertexPositions(0), m_vertexNormals(0),
   m_vertexTexCoords(0), m_indices(0), m_vertexCount(0),
-  m_triangleCount(0), m_bsdf(NULL) { }
+  m_triangleCount(0), m_bsdf(NULL), m_luminaire(NULL) { }
 
 Mesh::~Mesh() {
 	delete[] m_vertexPositions;
@@ -235,7 +236,12 @@ void Mesh::addChild(NoriObject *obj) {
 				throw NoriException("Mesh: tried to register multiple BSDF instances!");
 			m_bsdf = static_cast<BSDF *>(obj);
 			break;
-
+		case ELuminaire:
+			if (m_luminaire)
+				throw NoriException("Mesh: tried to register multiple luminaire instances!");
+			m_luminaire = static_cast<Luminaire*>(obj);
+			m_luminaire -> setMesh(this);
+			break;
 		default:
 			throw NoriException(QString("Mesh::addChild(<%1>) is not supported!").arg(
 				classTypeName(obj->getClassType())));

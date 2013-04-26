@@ -1,6 +1,5 @@
 /build
 /nori
-/include/boost
 /Makefile
 /nori.opensdf
 /nori.sdf
@@ -8,3 +7,8 @@
 /nori.suo
 /nori.vcxproj*
 /vc100.pdb
+doc
+debug
+release
+ipch
+debug

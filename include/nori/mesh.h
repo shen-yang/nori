@@ -138,7 +138,7 @@ public:
 	/// Return the surface area of the entire mesh
 	inline float surfaceArea() const { return m_distr.getSum(); }
 	
-	/// Return the probability of \ref sampleArea()
+	/// Return the probability of \ref sampleArea(), 1/area of mesh
 	inline float pdf() const { return m_distr.getNormalization(); }
 
 	/// Return a pointer to the vertex positions
@@ -155,6 +155,8 @@ public:
 
 	/// Return a pointer to the BSDF associated with this mesh
 	inline const BSDF *getBSDF() const { return m_bsdf; }
+
+	inline const Luminaire *getLuminaire() const { return m_luminaire; }
 
 	/// Register a child object (e.g. a BSDF) with the mesh
 	virtual void addChild(NoriObject *child);
@@ -182,6 +184,7 @@ protected:
 	uint32_t m_triangleCount;
 	DiscretePDF m_distr;
 	BSDF    *m_bsdf;
+	Luminaire *m_luminaire;
 	QString m_name;
 };
 

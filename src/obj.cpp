@@ -21,6 +21,7 @@
 #include <QTextStream>
 #include <QStringList>
 #include <QFile>
+#include <QDir>
 
 NORI_NAMESPACE_BEGIN
 

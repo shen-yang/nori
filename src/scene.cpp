@@ -84,6 +84,10 @@ void Scene::addChild(NoriObject *obj) {
 				Mesh *mesh = static_cast<Mesh *>(obj);
 				m_kdtree->addMesh(mesh);
 				m_meshes.push_back(mesh);
+				const Luminaire* luminaire = mesh->getLuminaire();
+				if ( luminaire != NULL ) {
+					m_luminaires.push_back(luminaire);
+				}
 			}
 			break;
 

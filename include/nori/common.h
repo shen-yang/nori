@@ -141,6 +141,7 @@ class NoriObject;
 class NoriObjectFactory;
 class Mesh;
 class BSDF;
+class Luminaire;
 class Bitmap;
 class BlockGenerator;
 class ImageBlock;
@@ -202,6 +203,8 @@ inline int clamp(int value, int min, int max) {
 inline float lerp(float t, float v1, float v2) {
     return ((float) 1 - t) * v1 + t * v2;
 }
+
+
 
 /// Uniformly sample a vector on the unit sphere with respect to solid angles
 extern Vector3f squareToUniformSphere(const Point2f &sample);
