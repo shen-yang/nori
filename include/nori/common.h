@@ -59,6 +59,8 @@
 #define SQRT_TWO     1.41421356237309504880f
 #define INV_SQRT_TWO 0.70710678118654752440f
 
+#define TWOPI 6.28318530717958647692f
+
 /* Optimization-related macros */
 #if defined(__GNUC__)
 #define EXPECT_TAKEN(a)        __builtin_expect(a, true)

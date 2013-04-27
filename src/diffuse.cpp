@@ -28,6 +28,7 @@ class Diffuse : public BSDF {
 public:
 	Diffuse(const PropertyList &propList) {
 		m_albedo = propList.getColor("albedo", Color3f(0.5f));
+		m_reflectance = propList.getColor("reflectance", Color3f(1.0f));
 	}
 
 	/// Evaluate the BRDF model
@@ -40,7 +41,7 @@ public:
 			return Color3f(0.0f);
 
 		/* The BRDF is simply the albedo / pi */
-		return m_albedo * INV_PI;
+		return m_reflectance*m_albedo * INV_PI;
 	}
 
 	/// Compute the density of \ref sample() wrt. solid angles
@@ -75,7 +76,7 @@ public:
 
 		/* eval() / pdf() * cos(theta) = albedo. There
 		   is no need to call these functions. */
-		return m_albedo;
+		return m_reflectance*m_albedo;
 	}
 
 	/// Return a human-readable summary
@@ -83,12 +84,16 @@ public:
 		return QString(
 			"Diffuse[\n"
 			"  albedo = %1\n"
-			"]").arg(m_albedo.toString());
+			"  reflectance = %2\n"
+			"]").arg(m_albedo.toString()
+			.arg(m_reflectance.toString())
+			);
 	}
 
 	EClassType getClassType() const { return EBSDF; }
 private:
 	Color3f m_albedo;
+	Color3f m_reflectance;
 };
 
 NORI_REGISTER_CLASS(Diffuse, "diffuse");

@@ -26,8 +26,10 @@ public:
 			const Vector3f& wi, 
 			const Point3f& lightpos, 
 			const Normal3f& normal) const = 0;
-
+	/// delta distribution, for specular reflection and refraction
+	virtual bool isDelta() const {return false;}
 	EClassType getClassType() const { return ELuminaire; }
+	
 	int getSampleCount() const {return m_sampleCount;}
 protected:
 	const Mesh* m_mesh;

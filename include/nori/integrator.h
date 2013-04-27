@@ -22,6 +22,8 @@
 #include <nori/object.h>
 #include <nori/dpdf.h>
 #include <nori/frame.h>
+#include <nori/common.h>
+#include <nori/mesh.h>
 
 NORI_NAMESPACE_BEGIN
 
@@ -59,6 +61,21 @@ public:
 	 * */
 	EClassType getClassType() const { return EIntegrator; }
 };
+
+
+Color3f UniformSampleAllLights( 
+		const Scene* scene,
+		const Ray3f& ray,
+		const Intersection& its, 
+		Sampler* sampler );
+
+Color3f EstimateDirect( 
+	const Scene* scene,
+	const Luminaire* luminaire,
+	const Ray3f& ray,
+	const Intersection& its,
+	const Point2f& lightSample, 
+	const Point2f& bsdfSample );
 
 NORI_NAMESPACE_END
 

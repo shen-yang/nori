@@ -48,20 +48,40 @@ public:
 	}
 
 	/// Evaluate the BRDF for the given pair of directions
-	Color3f eval(const BSDFQueryRecord &bRec) const {
-		throw NoriException("Uh oh -- Microfacet::eval() is not implemented!");
+	inline Color3f eval(const BSDFQueryRecord &bRec) const {
+		Vector3f m = (bRec.wi + bRec.wo).normalized();
+		float d = evalNormal(m);
+		float f = fresnel(bRec.wi, m, m_extIOR, m_intIOR);
+		float g = smithG1(bRec.wi, m);
+		float cosThetai = Frame::cosTheta(bRec.wi);
+		float cosThetao = Frame::cosTheta(bRec.wo);
+		Color3f result = m_kd*INV_PI + 
+			Color3f(0.25f*m_ks*d*f*g/(cosThetai*cosThetao));
+		return result;
 	}
 
 	/// Evaluate the sampling density of \ref sample() wrt. solid angles
-	float pdf(const BSDFQueryRecord &bRec) const {
-		throw NoriException("Uh oh -- Microfacet::pdf() is not implemented!");
+	inline float pdf(const BSDFQueryRecord &bRec) const {
+		Vector3f m = (bRec.wi + bRec.wo).normalized();
+		return evalNormal(m) * Frame::cosTheta(m);
 	}
 
 	/// Sample the BRDF
 	Color3f sample(BSDFQueryRecord &bRec, const Point2f &sample) const {
-		throw NoriException("Uh oh -- Microfacet::sample() is not implemented!");
+		float tanThetaMSqr = -m_alpha*m_alpha*std::log(std::max(1e-8f, 1.0f-sample.x()));
+		float cosThetaM = 1.0f/std::sqrt(1.0f+tanThetaMSqr);
+		float sinThetaM = std::sqrt(std::max(0.0f, 1.0f-cosThetaM*cosThetaM));
+		float phiM = TWOPI*sample.y();
+		Vector3f m(sinThetaM*std::cos(phiM),
+				   sinThetaM*std::sin(phiM),
+				   cosThetaM);//half vector, or microsurface normal
+		float idotm = bRec.wi.dot(m);
+		bRec.wo = 2.0f*idotm*m - bRec.wi;
+		Color3f weight = eval(bRec)*Frame::cosTheta(bRec.wo)/pdf(bRec);
+		return weight;
 	}
-
+	
+	
 	QString toString() const {
 		return QString(
 			"Microfacet[\n"
@@ -82,6 +102,39 @@ private:
 	float m_intIOR, m_extIOR;
 	float m_ks;
 	Color3f m_kd;
+	// eval Beckman distribution
+	float evalNormal( const Vector3f& m) const{
+		if ( Frame::cosTheta(m) <= 0.0f ){
+			return 0.0f;
+		}
+		float alphaSqr = m_alpha*m_alpha;
+		float exponent = Frame::tanTheta2(m)/alphaSqr;
+		float cosTheta2 = Frame::cosTheta2(m);
+		float result = std::exp(-exponent)/
+			(M_PI*alphaSqr*cosTheta2*cosTheta2);
+		if (result < 1e-20f) {
+			result = 0.0f;
+		}
+		return result;
+	}
+
+	/// SmithG1 shadow masking
+	float smithG1( const Vector3f& v, const Vector3f& m) const{
+		float tanTheta = std::abs(Frame::tanTheta(v));
+		if ( tanTheta == 0.0f ) {
+			return 1.0f;
+		}
+		if (v.dot(m)*Frame::cosTheta(v) <= 0) {
+			return 0.0f;
+		}
+		float a =  1.0f/(m_alpha*tanTheta);
+		if ( a>=1.6f) {
+			return 1.0f;
+		}
+		float asqr = a*a;
+		return (3.535f * a + 2.181f * asqr)
+				/ (1.0f + 2.276f * a + 2.577f * asqr);
+	}
 };
 
 NORI_REGISTER_CLASS(Microfacet, "microfacet");

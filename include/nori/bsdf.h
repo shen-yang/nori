@@ -97,12 +97,25 @@ public:
 
 	virtual float pdf(const BSDFQueryRecord &bRec) const = 0;
 	
+
+	virtual float isSpecular() const { return false; }
 	/**
 	 * \brief Return the type of object (i.e. Mesh/BSDF/etc.) 
 	 * provided by this instance
 	 * */
 	EClassType getClassType() const { return EBSDF; }
 };
+
+// F(f0) = f0 + (1-f0)(1-wi*m)^5
+// f0 = ((n1-n2)/(n1+n2))^2
+inline float fresnel(const Vector3f& wi, const Vector3f& m, float extIOR, float intIOR){
+	float f0 = (extIOR - intIOR)/(extIOR+intIOR);
+	f0*=f0;
+	float cosTheta = wi.dot(m);
+	float cosTheta2 = cosTheta*cosTheta;
+	float r = f0 + (1-f0)*cosTheta*cosTheta2*cosTheta2;
+	return r;
+}
 
 NORI_NAMESPACE_END
 

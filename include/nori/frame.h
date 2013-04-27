@@ -68,6 +68,9 @@ struct Frame {
 		return v.z();
 	}
 
+	inline static float cosTheta2(const Vector3f& v) {
+		return v.z()*v.z();
+	}
 	/** \brief Assuming that the given direction is in the local coordinate
 	 * system, return the sine of the angle between the normal and v */
 	inline static float sinTheta(const Vector3f &v) {
@@ -85,7 +88,12 @@ struct Frame {
 			return 0.0f;
 		return std::sqrt(temp) / v.z();
 	}
-
+	
+	inline static float tanTheta2(const Vector3f& v) {
+		float zsqr = v.z()*v.z();
+		float temp = 1.0f - zsqr;
+		return temp/zsqr;
+	}
 	/** \brief Assuming that the given direction is in the local coordinate
 	 * system, return the squared sine of the angle between the normal and v */
 	inline static float sinTheta2(const Vector3f &v) {
