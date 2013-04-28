@@ -1,16 +1,18 @@
 #include <nori/bsdf.h>
 #include <nori/frame.h>
+#include <nori/random.h>
 
 NORI_NAMESPACE_BEGIN
-Color3f FrDiel(float cosi, float cost, const Color3f &etai,
-                const Color3f &etat) {
-    Color3f Rparl = ((etat * cosi) - (etai * cost)) /
+float FrDiel(float cosi, float cost, const float &etai,
+                const float &etat) {
+    float Rparl = ((etat * cosi) - (etai * cost)) /
                      ((etat * cosi) + (etai * cost));
-    Color3f Rperp = ((etai * cosi) - (etat * cost)) /
+    float Rperp = ((etai * cosi) - (etat * cost)) /
                      ((etai * cosi) + (etat * cost));
     return (Rparl*Rparl + Rperp*Rperp) / 2.f;
 }
-Color3f Evaluate(float cosi, float intIOR, float extIOR) {
+
+float Evaluate(float cosi, float intIOR, float extIOR) {
     // Compute Fresnel reflectance for dielectric
     cosi = clamp(cosi, -1.f, 1.f);
 
@@ -55,18 +57,16 @@ public:
 	}
 
 	/// Draw a a sample from the BRDF model
-	Color3f sampleReflection(BSDFQueryRecord &bRec, const Point2f &sample) const {
-		if (Frame::cosTheta(bRec.wi) <= 0) 
-			return Color3f(0.0f);
+	float sampleReflection(BSDFQueryRecord &bRec, const float f) const {
 		// compute perfect specular reflection direction
 		bRec.wo = Vector3f(-bRec.wi.x(), -bRec.wi.y(), bRec.wi.z());
-		return Evaluate(Frame::cosTheta(bRec.wi), m_intIOR, m_extIOR);
+		return f;
 	}
 
 	/// Draw a a sample from the BRDF model
-	Color3f sampleRefraction(BSDFQueryRecord &bRec, const Point2f &sample) const {
+	float sampleRefraction(BSDFQueryRecord &bRec, float f) const {
 		bool entering = Frame::cosTheta(bRec.wi) > 0.0f;
-		float ei = m_intIOR, et = m_extIOR;
+		float ei = m_extIOR, et = m_intIOR;
 		if (!entering) {
 			std::swap(ei, et);
 		}
@@ -78,7 +78,7 @@ public:
 		
 		// handle total internal reflection for transmission
 		if ( sint2 >= 1.0f ) {
-			return Color3f(0.0f);
+			return 0.0f;
 		}
 		float cost = std::sqrt(std::max(0.0f, 1.0f - sint2));
 		if (entering) {
@@ -89,10 +89,22 @@ public:
 			sintOverSini*-bRec.wi.x(), 
 			sintOverSini*-bRec.wi.y(), 
 			cost);
-		Color3f f = Evaluate(Frame::cosTheta(bRec.wi), m_intIOR, m_extIOR);
-		return (Color3f(1.0f)-f)/Frame::cosTheta(bRec.wo);
+		float inveta = et/ei;
+		return (1.0f-f)*inveta*inveta;
 	}
-
+	Color3f sample(BSDFQueryRecord &bRec, const Point2f &sample)const{
+		float reflectance = Evaluate(Frame::cosTheta(bRec.wi), m_extIOR, m_intIOR);
+		float rp = 0.25f + 0.5f*reflectance;
+		float result;
+		if (sample.x() < rp) {
+			result = sampleReflection(bRec, reflectance);
+			result/=rp;
+		} else {
+			result = sampleRefraction(bRec, reflectance);
+			result/=(1-rp);
+		}
+		return Color3f(result);
+	}
 	/// Return a human-readable summary
 	QString toString() const {
 		return QString(

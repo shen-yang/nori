@@ -30,13 +30,20 @@
 		<integer name="height" value="768"/>
 	</camera>
 
-	<!-- Light using an environment map -->
-	<luminaire type="envmap">
-		<string name="filename" value="envmap.exr"/>
+	<mesh type="obj">
+		<string name="filename" value="cbox_1.obj"/>
 		<transform name="toWorld">
-			<rotate axis="1,0,0" angle="90"/>
+			<translate value="0, -0.5, 0"/>
 		</transform>
-	</luminaire>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0.78, 0.78, 0.78"/>
+		</bsdf>
+		<luminaire type="area">
+			<color name="radiance" value="15, 15, 15"/>
+			<!-- original tungsten color is "17, 11.8, 4"-->
+			<integer name="sampleCount" value="1"/>
+		</luminaire>
+	</mesh>
 
 	<mesh type="obj">
 		<string name="filename" value="mesh_0.obj"/>

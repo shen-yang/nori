@@ -36,6 +36,7 @@ public:
 		EScene = 0,
 		EMesh,
 		EBSDF,
+		ETEXTURE,
 		EPhaseFunction,
 		ELuminaire,
 		EMedium,

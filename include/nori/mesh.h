@@ -156,6 +156,8 @@ public:
 	/// Return a pointer to the BSDF associated with this mesh
 	inline const BSDF *getBSDF() const { return m_bsdf; }
 
+	inline const Texture* getTexture() const {return NULL;}
+
 	inline const Luminaire *getLuminaire() const { return m_luminaire; }
 
 	/// Register a child object (e.g. a BSDF) with the mesh

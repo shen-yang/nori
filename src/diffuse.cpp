@@ -85,9 +85,9 @@ public:
 			"Diffuse[\n"
 			"  albedo = %1\n"
 			"  reflectance = %2\n"
-			"]").arg(m_albedo.toString()
-			.arg(m_reflectance.toString())
-			);
+			"]")
+			.arg(m_albedo.toString())
+			.arg(m_reflectance.toString());
 	}
 
 	EClassType getClassType() const { return EBSDF; }

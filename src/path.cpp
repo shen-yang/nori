@@ -25,16 +25,22 @@ public:
 		if (!scene->rayIntersect(ray, its))
 			return Color3f(0.0f);
 		Color3f radiance(0.0f);
-		const Luminaire* luminaire = its.mesh->getLuminaire();
-		// intersect light, count emission
-		if (luminaire != NULL) {
-			Vector3f wo = (-ray.d).normalized();
-			radiance += luminaire->le(its.p, its.shFrame.n, wo);
-		}
+		
+		bool specularBounce = false;
 		Color3f pathThroughput(1.0f);
 		for ( int bounces = 0; ; ++bounces ) {
+			if (bounces == 0 || specularBounce) {
+				const Luminaire* luminaire = its.mesh->getLuminaire();
+				if (luminaire != NULL) {
+					Vector3f wo = (-ray.d).normalized();
+					Color3f emission = luminaire->le(its.p, its.shFrame.n, wo);
+					radiance += pathThroughput*emission;
+				}
+			}
 			// sample illumination from lights, add to path contribution
-			radiance += pathThroughput*UniformSampleAllLights(scene, ray, its, sampler);
+			if (!its.mesh->getBSDF()->isSpecular()){
+				radiance += pathThroughput*UniformSampleAllLights(scene, ray, its, sampler);
+			}
 			// sample bsdf to get new path direction
 			const BSDF* bsdf = its.mesh->getBSDF();
 			BSDFQueryRecord bRec(its.toLocal((-ray.d)).normalized());
@@ -42,6 +48,7 @@ public:
 			if (f.isZero() ) { // farther path no contribution
 				break;
 			}
+			specularBounce = bsdf->isSpecular();
 			Vector3f d = its.toWorld(bRec.wo);
 			pathThroughput *= f;
 			ray = Ray3f(its.p, d );
@@ -58,6 +65,14 @@ public:
 			}
 			// find next vertex of path
 			if ( !scene->rayIntersect(ray, its) ) {
+				if (specularBounce) {
+					const std::vector<const Luminaire*>& luminaires 
+						= scene->getLuminaires();
+					for (uint32_t i = 0; i<luminaires.size(); ++i) {
+						Vector3f wo = (-ray.d).normalized();
+						radiance += pathThroughput*luminaires[i]->le(its.p, its.shFrame.n, wo);
+					}
+				}
 				break;
 			}
 		}

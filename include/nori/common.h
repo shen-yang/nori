@@ -143,6 +143,7 @@ class NoriObject;
 class NoriObjectFactory;
 class Mesh;
 class BSDF;
+class Texture;
 class Luminaire;
 class Bitmap;
 class BlockGenerator;
