@@ -8,6 +8,7 @@
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 			<!-- Nested objects -->
 			<xsd:element name="bsdf" type="object"/>
+			<xsd:element name="texture" type="object"/>
 			<xsd:element name="test" type="object"/>
 			<xsd:element name="mesh" type="object"/>
 			<xsd:element name="integrator" type="object"/>

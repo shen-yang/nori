@@ -2,6 +2,7 @@
 #include <nori/sampler.h>
 #include <nori/scene.h>
 #include <nori/bsdf.h>
+#include <nori/texture.h>
 #include <nori/luminaire.h>
 #include <nori/random.h>
 
@@ -37,19 +38,26 @@ public:
 					radiance += pathThroughput*emission;
 				}
 			}
+			const Texture* texture = its.mesh->getTexture();
+			Color3f texel(1.0f);
+			if ( texture ) {
+				texel = texture->lookUp(its.uv.x(), its.uv.y());
+			}
+			const BSDF* bsdf = its.mesh->getBSDF();
 			// sample illumination from lights, add to path contribution
-			if (!its.mesh->getBSDF()->isSpecular()){
-				radiance += pathThroughput*UniformSampleAllLights(scene, ray, its, sampler);
+			if (!bsdf->isSpecular()){
+				radiance += pathThroughput*UniformSampleAllLights(scene, ray, its, sampler)*texel;
 			}
 			// sample bsdf to get new path direction
-			const BSDF* bsdf = its.mesh->getBSDF();
 			BSDFQueryRecord bRec(its.toLocal((-ray.d)).normalized());
-			Color3f f = bsdf->sample(bRec, sampler->next2D() );
+			Color3f f = bsdf->sample(bRec, sampler->next2D() );	
 			if (f.isZero() ) { // farther path no contribution
 				break;
 			}
 			specularBounce = bsdf->isSpecular();
 			Vector3f d = its.toWorld(bRec.wo);
+			f *= texel;
+			assert( f.isValid());
 			pathThroughput *= f;
 			ray = Ray3f(its.p, d );
 			// possibly termination

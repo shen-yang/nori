@@ -12,3 +12,4 @@ debug
 release
 ipch
 debug
+*.exr

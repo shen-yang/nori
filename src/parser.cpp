@@ -33,6 +33,7 @@ public:
 		EScene                = NoriObject::EScene,
 		EMesh                 = NoriObject::EMesh,
 		EBSDF                 = NoriObject::EBSDF,
+		ETEXTURE              = NoriObject::ETEXTURE,
 		ELuminaire            = NoriObject::ELuminaire,
 		ECamera               = NoriObject::ECamera,
 		EMedium               = NoriObject::EMedium,
@@ -62,6 +63,7 @@ public:
 		m_tags["scene"]      = EScene;
 		m_tags["mesh"]       = EMesh;
 		m_tags["bsdf"]       = EBSDF;
+		m_tags["texture"]    = ETEXTURE;
 		m_tags["luminaire"]  = ELuminaire;
 		m_tags["camera"]     = ECamera;
 		m_tags["medium"]     = EMedium;

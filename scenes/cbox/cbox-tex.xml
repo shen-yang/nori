@@ -23,7 +23,7 @@
 			<color name="albedo" value="0.75, 0.75, 0.75"/>
 		</bsdf>
 		<texture type="uv">
-			<string name="filename" value="floor.pfm"/>
+			<string name="filename" value="wood1.pfm"/>
 		</texture>
 	</mesh>
 	

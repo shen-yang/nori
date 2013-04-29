@@ -156,7 +156,7 @@ public:
 	/// Return a pointer to the BSDF associated with this mesh
 	inline const BSDF *getBSDF() const { return m_bsdf; }
 
-	inline const Texture* getTexture() const {return NULL;}
+	inline const Texture* getTexture() const {return m_texture;}
 
 	inline const Luminaire *getLuminaire() const { return m_luminaire; }
 
@@ -186,6 +186,7 @@ protected:
 	uint32_t m_triangleCount;
 	DiscretePDF m_distr;
 	BSDF    *m_bsdf;
+	Texture *m_texture;
 	Luminaire *m_luminaire;
 	QString m_name;
 };

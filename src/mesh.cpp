@@ -19,6 +19,7 @@
 #include <nori/mesh.h>
 #include <nori/bbox.h>
 #include <nori/bsdf.h>
+#include <nori/texture.h>
 #include <nori/luminaire.h>
 #include <Eigen/Geometry>
 
@@ -28,7 +29,8 @@ NORI_NAMESPACE_BEGIN
 
 Mesh::Mesh() : m_vertexPositions(0), m_vertexNormals(0),
   m_vertexTexCoords(0), m_indices(0), m_vertexCount(0),
-  m_triangleCount(0), m_bsdf(NULL), m_luminaire(NULL) { }
+  m_triangleCount(0), m_bsdf(NULL), m_luminaire(NULL),
+  m_texture(NULL){ }
 
 Mesh::~Mesh() {
 	delete[] m_vertexPositions;
@@ -241,6 +243,11 @@ void Mesh::addChild(NoriObject *obj) {
 				throw NoriException("Mesh: tried to register multiple luminaire instances!");
 			m_luminaire = static_cast<Luminaire*>(obj);
 			m_luminaire -> setMesh(this);
+			break;
+		case ETEXTURE:
+			if (m_texture)
+				throw NoriException("Mesh: tried to register multiple texture instances!");
+			m_texture = static_cast<Texture*>(obj);
 			break;
 		default:
 			throw NoriException(QString("Mesh::addChild(<%1>) is not supported!").arg(
