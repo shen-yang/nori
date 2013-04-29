@@ -6,7 +6,7 @@
 	</integrator>
 	
 	<sampler type="independent">
-		<integer name="sampleCount" value="2560"/>
+		<integer name="sampleCount" value="64"/>
 	</sampler>
 
 	<camera type="perspective">
@@ -50,7 +50,7 @@
 			<color name="albedo" value="0.75, 0.75, 0.75"/>
 		</bsdf>
 	</mesh>
-
+	<!--middle square-->
 	<mesh type="obj">
 		<string name="filename" value="meshes/cbox_3.obj"/>
 		<bsdf type="diffuse">
@@ -61,7 +61,7 @@
 	<mesh type="obj">
 		<string name="filename" value="meshes/cbox_4.obj"/>
 		<bsdf type="diffuse">
-			<color name="albedo" value="0.25, 0.25, 0.75"/>
+			<color name="albedo" value="0.117, 0.373, 0.100"/>
 		</bsdf>
 	</mesh>
 	
@@ -134,11 +134,11 @@
 			<color name="albedo" value="0.75, 0.75, 0.75"/>
 		</bsdf>
 	</mesh>
-	
+	<!-- front of bigger cube-->
 	<mesh type="obj">
 		<string name="filename" value="meshes/cbox_15.obj"/>
 		<bsdf type="diffuse">
-			<color name="albedo" value="0.61, 0.37, 0.07"/>
+			<color name="albedo" value="0.25, 0.25, 0.75"/>
 		</bsdf>
 	</mesh>
 	

@@ -73,14 +73,6 @@ public:
 			}
 			// find next vertex of path
 			if ( !scene->rayIntersect(ray, its) ) {
-				if (specularBounce) {
-					const std::vector<const Luminaire*>& luminaires 
-						= scene->getLuminaires();
-					for (uint32_t i = 0; i<luminaires.size(); ++i) {
-						Vector3f wo = (-ray.d).normalized();
-						radiance += pathThroughput*luminaires[i]->le(its.p, its.shFrame.n, wo);
-					}
-				}
 				break;
 			}
 		}
