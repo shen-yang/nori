@@ -9,7 +9,7 @@
 NORI_NAMESPACE_BEGIN
 
 
-const int kSampleDepth = 3;
+const int kSampleDepth = 5;
 /**
  * \brief Path Tracing.
  */

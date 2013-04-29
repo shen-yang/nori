@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Manually converted from Mitsuba XML, converted from MDL -->
 <scene>
-	<integrator type="path"/>
+	<integrator type="path">
+		<integer name="maxDepth" value="13"/>
+	</integrator>
 	
 	<sampler type="independent">
-		<integer name="sampleCount" value="128"/>
+		<integer name="sampleCount" value="1024"/>
 	</sampler>
 
 	<camera type="perspective">
@@ -136,4 +138,6 @@
 			<color name="albedo" value="0.75, 0.75, 0.75"/>
 		</bsdf>
 	</mesh>
+	
+
 </scene>

@@ -262,11 +262,13 @@ QString Mesh::toString() const {
 		"  vertexCount = %2,\n"
 		"  triangleCount = %3,\n"
 		"  bsdf = %4\n"
+		"  texture = %5\n"
 		"]")
 	.arg(m_name)
 	.arg(m_vertexCount)
 	.arg(m_triangleCount)
-	.arg(indent(m_bsdf->toString()));
+	.arg(indent(m_bsdf->toString()))
+	.arg(m_texture? indent(m_texture->toString()):"null");
 }
 
 QString Intersection::toString() const {

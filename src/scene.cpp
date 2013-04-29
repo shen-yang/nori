@@ -21,6 +21,7 @@
 #include <nori/integrator.h>
 #include <nori/sampler.h>
 #include <nori/camera.h>
+#include <nori/luminaire.h>
 #include <nori/medium.h>
 
 NORI_NAMESPACE_BEGIN
@@ -129,19 +130,29 @@ QString Scene::toString() const {
 			meshes += ",";
 		meshes += "\n";
 	}
+	QString luminaires;
+	for (size_t i = 0; i < m_luminaires.size(); ++i) {
+		luminaires += QString("  ") + indent(m_luminaires[i]->toString(), 2);
+		if ( i + 1 < m_luminaires.size()) {
+			luminaires += ",";
+		}
+		luminaires += "\n";
+	}
 	return QString(
 		"Scene[\n"
 		"  integrator = %1,\n"
 		"  sampler = %2\n"
 		"  camera = %3,\n"
 		"  medium = %4,\n"
+		"  luminaires = %5,\n"
 		"  meshes = {\n"
-		"  %5}\n"
+		"  %6}\n"
 		"]")
 	.arg(indent(m_integrator->toString()))
 	.arg(indent(m_sampler->toString()))
 	.arg(indent(m_camera->toString()))
 	.arg(m_medium ? indent(m_medium->toString()) : QString("null"))
+	.arg(indent(luminaires,2))
 	.arg(indent(meshes, 2));
 }
 

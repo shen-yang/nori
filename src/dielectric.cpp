@@ -11,14 +11,14 @@ float FrDiel(float cosi, float cost, const float &etai,
                      ((etai * cosi) + (etat * cost));
     return (Rparl*Rparl + Rperp*Rperp) / 2.f;
 }
-
-float Evaluate(float cosi, float intIOR, float extIOR) {
+#if 1
+float EvaluateRef(float cosi, float extIOR, float intIOR) {
     // Compute Fresnel reflectance for dielectric
     cosi = clamp(cosi, -1.f, 1.f);
 
     // Compute indices of refraction for dielectric
-    bool entering = cosi > 0.;
-    float ei = intIOR, et = extIOR;
+    bool entering = cosi > 0.0f;
+    float ei = extIOR, et = intIOR;
     if (!entering)
         std::swap(ei, et);
 
@@ -30,9 +30,33 @@ float Evaluate(float cosi, float intIOR, float extIOR) {
     }
     else {
         float cost = std::sqrt(std::max(0.f, 1.f - sint*sint));
-        return FrDiel(fabsf(cosi), cost, ei, et);
+        return FrDiel(fabsf(cosi), fabs(cost), ei, et);
     }
 }
+#else
+
+float Evaluate(float cosi, float extIOR, float intIOR) {
+    // Compute indices of refraction for dielectric
+    bool entering = cosi > 0.0f;
+    float ei = extIOR, et = intIOR;
+    if (!entering)
+        std::swap(ei, et);
+    // Compute _sint_ using Snell's law
+    float sint = ei/et * sqrtf(std::max(0.f, 1.f - cosi*cosi));
+    if (sint >= 1.0f) {
+        // Handle total internal reflection
+        return 1.0f;
+    } else {
+		// Compute Fresnel reflectance for dielectric
+		float a = extIOR - intIOR;
+		float b = extIOR + intIOR;
+		float r0 = a*a/(b*b);
+		float c = 1.0f - std::abs(cosi);
+		float result = r0 + (1.0f-r0)*c*c*c*c*c;
+		return result;
+    }
+}
+#endif
 /**
  * \brief Specular reflection and transmission for dielectric material
  */
@@ -65,43 +89,47 @@ public:
 
 	/// Draw a a sample from the BRDF model
 	float sampleRefraction(BSDFQueryRecord &bRec, float f) const {
+		// total internal reflection is handled outside
 		bool entering = Frame::cosTheta(bRec.wi) > 0.0f;
 		float ei = m_extIOR, et = m_intIOR;
 		if (!entering) {
 			std::swap(ei, et);
 		}
-
 		// compute transmitted ray direction using snell's law
+		float sintOverSini = ei/et;
 		float sini2 = Frame::sinTheta2(bRec.wi);
-		float eta = ei/et;
-		float sint2 = eta*eta*sini2;
-		
-		// handle total internal reflection for transmission
-		if ( sint2 >= 1.0f ) {
-			return 0.0f;
-		}
+		float sint2 = sintOverSini*sintOverSini*sini2;
 		float cost = std::sqrt(std::max(0.0f, 1.0f - sint2));
 		if (entering) {
 			cost = -cost;
 		}
-		float sintOverSini = eta;
 		bRec.wo = Vector3f(
 			sintOverSini*-bRec.wi.x(), 
 			sintOverSini*-bRec.wi.y(), 
 			cost);
-		float inveta = et/ei;
-		return (1.0f-f)*inveta*inveta;
+		return 1.0f-f;
 	}
+
+	float Evaluate(const BSDFQueryRecord &bRec) const {
+		float reflectance = EvaluateRef(Frame::cosTheta(bRec.wi), m_extIOR, m_intIOR);
+		return reflectance;
+	}
+
 	Color3f sample(BSDFQueryRecord &bRec, const Point2f &sample)const{
-		float reflectance = Evaluate(Frame::cosTheta(bRec.wi), m_extIOR, m_intIOR);
-		float rp = 0.25f + 0.5f*reflectance;
+		float reflectance = Evaluate(bRec);
 		float result;
-		if (sample.x() < rp) {
+		if (reflectance >= 1.0f ) {
+			// handle total internal reflection for transmission
 			result = sampleReflection(bRec, reflectance);
-			result/=rp;
 		} else {
-			result = sampleRefraction(bRec, reflectance);
-			result/=(1-rp);
+			float rp = 0.1f + 0.5f*reflectance;
+			if (sample.x() < rp) {
+				result = sampleReflection(bRec, reflectance);
+				result/=rp;
+			} else {
+				result = sampleRefraction(bRec, reflectance);
+				result/=(1-rp);
+			}
 		}
 		return Color3f(result);
 	}

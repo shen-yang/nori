@@ -2,6 +2,7 @@
 #include <nori/sampler.h>
 #include <nori/scene.h>
 #include <nori/bsdf.h>
+#include <nori/texture.h>
 #include <nori/luminaire.h>
 
 NORI_NAMESPACE_BEGIN
@@ -36,10 +37,15 @@ public:
 		}
 		const std::vector<const Luminaire*>& luminaires = scene->getLuminaires();
 		if ( luminaires.size() > 0 ) {
+			Color3f texel(1.0f);
+			const Texture* texture = its.mesh->getTexture();
 			// apply direct light
 			switch ( m_strategy ) {
 			case ESAMPLE_ALL:
-				radiance += UniformSampleAllLights(scene, ray, its, sampler);
+				if ( texture ) {
+					texel = texture->lookUp(its.uv.x(), its.uv.y());
+				}
+				radiance += texel*UniformSampleAllLights(scene, ray, its, sampler);
 				break;
 			case ESAMPLE_ONE:
 				throw NoriException("sample_one strategy is not implemented");

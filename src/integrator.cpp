@@ -44,7 +44,7 @@ Color3f EstimateDirect(
 	// multiple importance sample light source
 	luminaire->sample_L(poslighted, lightSample, &lightpos, &lightnormal, &wi );
 	float lightpdf = luminaire->pdf(poslighted, wi, lightpos, lightnormal);
-	if ( lightpdf > 0.0f ) {
+	if ( lightpdf > 0.0f) {
 		VisibilityTester vis;
 		vis.SetSegment(poslighted, 1e-4f, lightpos, 1e-4f);
 		if ( vis.Unoccluded(scene) ) {
@@ -53,14 +53,16 @@ Color3f EstimateDirect(
 				Vector3f wolocal = its.toLocal(-ray.d).normalized();
 				Vector3f wilocal = its.toLocal(wi).normalized();
 				BSDFQueryRecord bRec(wilocal, wolocal, ESolidAngle);
-				Color3f f = bsdf->eval(bRec);
 				float bsdfpdf = bsdf->pdf( bRec );
-				float weight = PowerHeuristic( 1, lightpdf, 1, bsdfpdf );
+				if (bsdfpdf > 0.0f ) {
+					Color3f f = bsdf->eval(bRec);
+					float weight = PowerHeuristic( 1, lightpdf, 1, bsdfpdf );
 #ifdef NO_MIS
-				ld = f * e * ( fabs(wi.dot(posNormal) )/lightpdf );
+					ld = f * e * ( fabs(wi.dot(posNormal) )/lightpdf );
 #else
-				ld += f * e * ( fabs(wi.dot(posNormal) )*weight/lightpdf );
+					ld += f * e * ( fabs(wi.dot(posNormal) )*weight/lightpdf );
 #endif
+				}
 			}
 		}
 	}
@@ -70,13 +72,13 @@ Color3f EstimateDirect(
 	BSDFQueryRecord bsdfRec(wo);
 	Color3f w = bsdf->sample(bsdfRec, bsdfSample);
 	Color3f li(0.0f);
-	if ( !w.isZero() ) {
+	float bsdfpdf = bsdf->pdf(bsdfRec);
+	if ( !w.isZero()&& bsdfpdf > 0.0f) {
 		Ray3f ray2( poslighted, its.toWorld(bsdfRec.wo) );
 		Intersection lightIts;
 		if ( scene->rayIntersect(ray2, lightIts) ){
 			if (lightIts.mesh == luminaire->getMesh()) {
 				li = luminaire->le( lightIts.p, lightIts.shFrame.n, (-ray2.d).normalized() );
-				float bsdfpdf = bsdf->pdf(bsdfRec);
 				float lightpdf = luminaire->pdf(
 												poslighted, 
 												ray2.d, 
