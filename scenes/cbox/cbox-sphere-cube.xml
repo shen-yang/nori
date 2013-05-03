@@ -2,11 +2,11 @@
 <!-- Manually converted from Mitsuba XML, converted from MDL -->
 <scene>
 	<integrator type="path">
-		<integer name="maxDepth" value="20"/>
+		<integer name="maxDepth" value="13"/>
 	</integrator>
 	
 	<sampler type="independent">
-		<integer name="sampleCount" value="16"/>
+		<integer name="sampleCount" value="64"/>
 	</sampler>
 
 	<camera type="perspective">
@@ -24,12 +24,14 @@
 		<bsdf type="diffuse">
 			<color name="albedo" value="0.75, 0.75, 0.75"/>
 		</bsdf>
+		<texture type="uv">
+			<string name="filename" value="wood.pfm"/>
+		</texture>
 	</mesh>
 	
 	<mesh type="obj">
 		<string name="filename" value="meshes/cbox_1.obj"/>
 		<transform name="toWorld">
-			<scale value="0.3,0.3,0.3"/>
 			<translate value="0, -0.5, 0"/>
 		</transform>
 		<bsdf type="diffuse">
@@ -52,7 +54,7 @@
 	<mesh type="obj">
 		<string name="filename" value="meshes/cbox_3.obj"/>
 		<bsdf type="diffuse">
-			<color name="albedo" value="0.25, 0.25, 0.75"/>
+			<color name="albedo" value="0.75, 0.75, 0.75"/>
 		</bsdf>
 	</mesh>
 
@@ -66,21 +68,54 @@
 	<mesh type="obj">
 		<string name="filename" value="meshes/cbox_5.obj"/>
 		<bsdf type="diffuse">
-			<color name="albedo" value="0.61, 0.62, 0.06"/>
+			<color name="albedo" value="0.25, 0.25, 0.75"/>
 		</bsdf>
 	</mesh>
 	
 	<mesh type="obj">
-		<string name="filename" value="meshes/sphere.obj"/>
-		<transform name="toWorld">
-			<scale value="100,100,100"/>
-			<translate value="150, 100, 300"/>
-		</transform>
-		<bsdf type="dielectric">
-			<float name="extIOR" value="1"/>
-			<float name="intIOR" value="1.7"/>
+		<string name="filename" value="meshes/cbox_11.obj"/>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0.75, 0.75, 0.75"/>
 		</bsdf>
 	</mesh>
 	
+	<mesh type="obj">
+		<string name="filename" value="meshes/cbox_12.obj"/>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0.75, 0.75, 0.75"/>
+		</bsdf>
+	</mesh>
+
+	<mesh type="obj">
+		<string name="filename" value="meshes/cbox_13.obj"/>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0.75, 0.75, 0.75"/>
+		</bsdf>
+	</mesh>
+	
+	<mesh type="obj">
+		<string name="filename" value="meshes/cbox_14.obj"/>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0.75, 0.75, 0.75"/>
+		</bsdf>
+	</mesh>
+	
+	<mesh type="obj">
+		<string name="filename" value="meshes/cbox_15.obj"/>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0.75, 0.75, 0.75"/>
+		</bsdf>
+	</mesh>
+	<mesh type="obj">
+		<string name="filename" value="meshes/sphere.obj"/>
+		<transform name="toWorld">
+			<scale value="100,100,100"/>
+			<translate value="150, 100, 230"/>
+		</transform>
+		<bsdf type="dielectric">
+			<float name="extIOR" value="1"/>
+			<float name="intIOR" value="1.5"/>
+		</bsdf>
+	</mesh>
 
 </scene>

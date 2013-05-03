@@ -104,10 +104,10 @@ public:
 			cost = -cost;
 		}
 		bRec.wo = Vector3f(
-			sintOverSini*-bRec.wi.x(), 
-			sintOverSini*-bRec.wi.y(), 
+			sintOverSini*(-bRec.wi.x()), 
+			sintOverSini*(-bRec.wi.y()), 
 			cost);
-		return 1.0f-f;
+		return (1.0f-f)/(sintOverSini*sintOverSini);
 	}
 
 	float Evaluate(const BSDFQueryRecord &bRec) const {
@@ -122,7 +122,7 @@ public:
 			// handle total internal reflection for transmission
 			result = sampleReflection(bRec, reflectance);
 		} else {
-			float rp = 0.1f + 0.5f*reflectance;
+			float rp = reflectance;
 			if (sample.x() < rp) {
 				result = sampleReflection(bRec, reflectance);
 				result/=rp;
