@@ -77,7 +77,7 @@ public:
 
 	/// Compute the density of \ref sample() wrt. solid angles
 	float pdf(const BSDFQueryRecord &bRec) const {
-		return 0.0f;
+		return 1.0f;
 	}
 
 	/// Draw a a sample from the BRDF model
@@ -116,6 +116,7 @@ public:
 	}
 
 	Color3f sample(BSDFQueryRecord &bRec, const Point2f &sample)const{
+		bRec.measure = EDiscrete;
 		float reflectance = Evaluate(bRec);
 		float result;
 		if (reflectance >= 1.0f ) {
@@ -136,7 +137,7 @@ public:
 	/// Return a human-readable summary
 	QString toString() const {
 		return QString(
-			"Diffuse[\n"
+			"Dielectric[\n"
 			"  intIOR = %1\n"
 			"  extIOR = %2\n"
 			"]")

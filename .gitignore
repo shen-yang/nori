@@ -10,7 +10,8 @@
 doc
 debug
 release
-ipch
+*.ipch
 debug
 *.exr
 ipch
+*.m

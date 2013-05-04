@@ -59,7 +59,7 @@ public:
 			ray = Ray3f(its.p, d );
 			// possibly termination
 			if (bounces > kSampleDepth) {
-#if 0
+#if 1
 				float continueProbability = std::min( 0.5f, pathThroughput.y() );
 				if ( sampler->next1D() > continueProbability ) {
 					break;

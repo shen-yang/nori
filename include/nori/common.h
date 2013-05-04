@@ -207,6 +207,14 @@ inline float lerp(float t, float v1, float v2) {
     return ((float) 1 - t) * v1 + t * v2;
 }
 
+inline uint32_t FloatAsInt(float v) {
+	union {
+		float f;
+		uint32_t i;
+	} a;
+	a.f = v;
+	return a.i;
+}
 
 
 /// Uniformly sample a vector on the unit sphere with respect to solid angles

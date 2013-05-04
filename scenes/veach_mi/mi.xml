@@ -3,7 +3,9 @@
      after a file by Steve Marschner (CS667) -->
 
 <scene>
-	<integrator type="mipath"/>
+	<integrator type="mipath">
+		<integer name="maxDepth" value="13"/>
+	</integrator>
 
 	<sampler type="independent">
 		<integer name="sampleCount" value="64"/>
@@ -15,8 +17,8 @@
 			<lookat origin="0, 6, 27.5" target="0, -1.5, 2.5" up="0, 1, 0"/>
 		</transform>
 		<float name="fov" value="25"/>
-		<integer name="width" value="768"/>
-		<integer name="height" value="512"/>
+		<integer name="width" value="192"/>
+		<integer name="height" value="128"/>
 	</camera>
 
 	<!-- distant light to provide overall illumination -->
