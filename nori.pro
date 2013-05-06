@@ -1,30 +1,5 @@
-SOURCES += src/common.cpp \
-	src/object.cpp \
-	src/proplist.cpp \
-	src/diffuse.cpp \
-	src/isotropic.cpp \
-	src/microfacet.cpp \
-	src/scene.cpp \
-	src/random.cpp \
-	src/quad.cpp \
-	src/ao.cpp \
-	src/chi2test.cpp \
-	src/ttest.cpp \
-	src/mesh.cpp \
-	src/kdtree.cpp \
-	src/obj.cpp \
-	src/perspective.cpp \
-	src/rfilter.cpp \
-	src/block.cpp \
-	src/bitmap.cpp \
-	src/parser.cpp \
-	src/mirror.cpp \
-	src/medium.cpp \
-	src/homogeneous.cpp \
-	src/heterogeneous.cpp \
-	src/independent.cpp \
-	src/main.cpp \
-	src/gui.cpp
+SOURCES += src/*.cpp
+SOURCES -= src/support_win32.cpp
 
 HEADERS += include/nori/*.h
 
@@ -58,8 +33,8 @@ macx | unix {
 
 win32 {
 	# You will have to update the following two lines based on where you have installed OpenEXR
-	QMAKE_LIBDIR += openexr/lib/x64
-	INCLUDEPATH += openexr/include
+	QMAKE_LIBDIR += ../openexr/Deploy/lib
+	INCLUDEPATH += ../openexr/Deploy/include/OpenEXR ../boost_1_53_0
 
 	QMAKE_CXXFLAGS += /O2 /fp:fast /GS- /GL /D_SCL_SECURE_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS
 	QMAKE_LDFLAGS += /LTCG

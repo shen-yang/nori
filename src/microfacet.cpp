@@ -68,8 +68,6 @@ public:
 		   interested in implementing a more realistic version 
 		   of this BRDF. */
 		m_ks = 1 - m_kd.maxCoeff();
-
-		m_random.seed(FloatAsInt(m_alpha+m_kd.maxCoeff()));
 	}
 
 	/// Evaluate the BRDF for the given pair of directions
@@ -93,9 +91,8 @@ public:
 		}
 		Vector3f m = (bRec.wi + bRec.wo).normalized();
 		float pdfs = evalNormal(m);
-		//float pdfd = Frame::cosTheta(bRec.wo)*INV_PI;
-		//return 0.5f*(pdfs+pdfd);
-		return pdfs;
+		float pdfd = Frame::cosTheta(bRec.wo)*INV_PI;
+		return m_ks*pdfs+(1-m_ks)*pdfd;
 	}
 
 	/// Sample the BRDF
@@ -104,13 +101,12 @@ public:
 			return Color3f(0.0f);
 		}
 		bRec.measure = ESolidAngle;
-
 		float tanThetaMSqr = -m_alpha*m_alpha*std::log(1.0f-sample.x());
 		//assert(tanThetaMSqr >= 0.0f);
 		float cosThetaM = 1.0f/std::sqrt(1.0f+tanThetaMSqr);
 		float sinThetaM = std::sqrt(1.0f-cosThetaM*cosThetaM);
 		float phiM = TWOPI*sample.y();
-		Vector3f m(sinThetaM*std::cos(phiM),
+		Vector3f m( sinThetaM*std::cos(phiM),
 					sinThetaM*std::sin(phiM),
 					cosThetaM);//half vector, or microsurface normal
 		if (m.z()*bRec.wi.z() < 0.0f) {//not on the same sphere
@@ -164,7 +160,6 @@ private:
 	float m_intIOR, m_extIOR;
 	float m_ks;
 	Color3f m_kd;
-	mutable Random m_random;
 	// eval Beckman distribution
 	float evalNormal( const Vector3f& m) const{
 		float cosThetaM = Frame::cosTheta(m);

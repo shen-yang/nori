@@ -1,12 +1,14 @@
 /build
 /nori
-/Makefile
+/Makefile*
 /nori.opensdf
 /nori.sdf
 /nori.sln
 /nori.suo
 /nori.vcxproj*
-/vc100.pdb
+/nori.idc
+openexr
+sample
 doc
 debug
 release
@@ -15,3 +17,5 @@ debug
 *.exr
 ipch
 *.m
+*.pdb
+*.suo

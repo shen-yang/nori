@@ -31,7 +31,8 @@ Color3f EstimateDirect(
 	const Ray3f& ray,
 	const Intersection& its,
 	const Point2f& lightSample, 
-	const Point2f& bsdfSample ) {
+	const Point2f& bsdfSample, 
+	ESamplePolicy samplePolicy) {
 	
 	Point3f poslighted = its.p;
 	Vector3f posNormal = its.shFrame.n;
@@ -42,55 +43,62 @@ Color3f EstimateDirect(
 	
 	const BSDF* bsdf = its.mesh->getBSDF();
 	// multiple importance sample light source
-	luminaire->sample_L(poslighted, lightSample, &lightpos, &lightnormal, &wi );
-	float lightpdf = luminaire->pdf(poslighted, wi, lightpos, lightnormal);
-	if ( lightpdf > 0.0f) {
-		VisibilityTester vis;
-		vis.SetSegment(poslighted, 1e-4f, lightpos, 1e-4f);
-		if ( vis.Unoccluded(scene) ) {
-			Color3f e = luminaire->le( lightpos, lightnormal, -wi );
-			if ( !e.isZero() ) {
-				Vector3f wolocal = its.toLocal(-ray.d).normalized();
-				Vector3f wilocal = its.toLocal(wi).normalized();
-				BSDFQueryRecord bRec(wilocal, wolocal, ESolidAngle);
-				float bsdfpdf = bsdf->pdf( bRec );
-				if (bsdfpdf > 0.0f ) {
-					Color3f f = bsdf->eval(bRec);
-					float weight = PowerHeuristic( 1, lightpdf, 1, bsdfpdf );
-#ifdef NO_MIS
-					ld = f * e * ( fabs(wi.dot(posNormal) )/lightpdf );
-#else
-					ld += f * e * ( fabs(wi.dot(posNormal) )*weight/lightpdf );
-#endif
+	if (samplePolicy == EMis || samplePolicy == ESampleLight) {
+		luminaire->sample_L(poslighted, lightSample, &lightpos, &lightnormal, &wi );
+		float lightpdf = luminaire->pdf(poslighted, wi, lightpos, lightnormal);
+		if ( lightpdf > 0.0f) {
+			VisibilityTester vis;
+			vis.SetSegment(poslighted, 1e-4f, lightpos, 1e-4f);
+			if ( vis.Unoccluded(scene) ) {
+				Color3f e = luminaire->le( lightpos, lightnormal, -wi );
+				if ( !e.isZero() ) {
+					Vector3f wolocal = its.toLocal(-ray.d).normalized();
+					Vector3f wilocal = its.toLocal(wi).normalized();
+					BSDFQueryRecord bRec(wilocal, wolocal, ESolidAngle);
+					float bsdfpdf = bsdf->pdf( bRec );
+					if (bsdfpdf > 0.0f ) {
+						Color3f f = bsdf->eval(bRec);
+						if (samplePolicy == ESampleLight) {
+							ld = f * e * ( fabs(wi.dot(posNormal) )/lightpdf );
+						} else if (samplePolicy == EMis) {
+							float weight = PowerHeuristic( 1, lightpdf, 1, bsdfpdf );
+							ld += f * e * ( fabs(wi.dot(posNormal) )*weight/lightpdf );
+						}
+					}
 				}
 			}
 		}
 	}
-#ifndef NO_MIS
+
 	// multiple importance sample BSDF
-	Vector3f wo = its.toLocal(-ray.d).normalized();
-	BSDFQueryRecord bsdfRec(wo);
-	Color3f w = bsdf->sample(bsdfRec, bsdfSample);
-	Color3f li(0.0f);
-	float bsdfpdf = bsdf->pdf(bsdfRec);
-	if ( !w.isZero()&& bsdfpdf > 0.0f) {
-		Ray3f ray2( poslighted, its.toWorld(bsdfRec.wo) );
-		Intersection lightIts;
-		if ( scene->rayIntersect(ray2, lightIts) ){
-			if (lightIts.mesh == luminaire->getMesh()) {
-				li = luminaire->le( lightIts.p, lightIts.shFrame.n, (-ray2.d).normalized() );
-				float lightpdf = luminaire->pdf(
-												poslighted, 
-												ray2.d, 
-												lightIts.p, 
-												lightIts.shFrame.n
-												);
-				float weight = PowerHeuristic(1, bsdfpdf, 1, lightpdf);
-				ld += w*li*weight;
+	if (samplePolicy == EMis || samplePolicy == ESampleBsdf) {
+		Vector3f wo = its.toLocal(-ray.d).normalized();
+		BSDFQueryRecord bsdfRec(wo);
+		Color3f w = bsdf->sample(bsdfRec, bsdfSample);
+		Color3f li(0.0f);
+		float bsdfpdf = bsdf->pdf(bsdfRec);
+		if ( !w.isZero()&& bsdfpdf > 0.0f) {
+			Ray3f ray2( poslighted, its.toWorld(bsdfRec.wo) );
+			Intersection lightIts;
+			if ( scene->rayIntersect(ray2, lightIts) ){
+				if (lightIts.mesh == luminaire->getMesh()) {
+					li = luminaire->le( lightIts.p, lightIts.shFrame.n, (-ray2.d).normalized() );
+					if (samplePolicy==EMis) {
+						float lightpdf = luminaire->pdf(
+													poslighted, 
+													ray2.d, 
+													lightIts.p, 
+													lightIts.shFrame.n
+													);
+						float weight = PowerHeuristic(1, bsdfpdf, 1, lightpdf);
+						ld += w*li*weight;
+					} else if (samplePolicy == ESampleBsdf) {
+						ld = w*li;
+					}
+				}
 			}
 		}
 	}
-#endif
 	return ld;
 }
 
@@ -98,7 +106,8 @@ Color3f UniformSampleAllLights(
 		const Scene* scene,
 		const Ray3f& ray,
 		const Intersection& its, 
-		Sampler* sampler ) {
+		Sampler* sampler,
+		ESamplePolicy samplePolicy) {
 	Color3f radiance(0.0f);
 	const std::vector<const Luminaire*>& luminaires = scene->getLuminaires();
 	for ( uint32_t i = 0; i < luminaires.size(); ++i ) {
@@ -108,7 +117,7 @@ Color3f UniformSampleAllLights(
 		for ( int j = 0; j < numSamples; ++j ) {
 			Point2f lightSample = sampler->next2D();
 			Point2f bsdfSample = sampler->next2D();
-			ld += EstimateDirect( scene, luminaire, ray, its, lightSample, bsdfSample );
+			ld += EstimateDirect( scene, luminaire, ray, its, lightSample, bsdfSample, samplePolicy );
 		}
 		radiance += ld/numSamples;
 	}

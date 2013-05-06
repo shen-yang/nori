@@ -62,12 +62,16 @@ public:
 	EClassType getClassType() const { return EIntegrator; }
 };
 
+enum ESamplePolicy {
+	ESampleLight, ESampleBsdf, EMis
+};
 
 Color3f UniformSampleAllLights( 
 		const Scene* scene,
 		const Ray3f& ray,
 		const Intersection& its, 
-		Sampler* sampler );
+		Sampler* sampler,
+		ESamplePolicy samplePolicy = EMis);
 
 Color3f EstimateDirect( 
 	const Scene* scene,
@@ -75,7 +79,8 @@ Color3f EstimateDirect(
 	const Ray3f& ray,
 	const Intersection& its,
 	const Point2f& lightSample, 
-	const Point2f& bsdfSample );
+	const Point2f& bsdfSample,
+	ESamplePolicy samplePolicy = EMis );
 
 NORI_NAMESPACE_END
 

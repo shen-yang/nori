@@ -17,6 +17,14 @@ class Path : public Integrator {
 public:
 	Path(const PropertyList &propList) {
 		m_maxDepth = propList.getInteger("maxDepth", 13);
+		QString samplePolicy = propList.getString("samplePolicy", "SampleBoth");
+		if (samplePolicy == "SampleBsdf") {
+			m_samplePolicy = ESampleBsdf;
+		} else if (samplePolicy == "sampleLight") {
+			m_samplePolicy = ESampleLight;
+		} else {
+			m_samplePolicy = EMis;
+		}
 	}
 
 	Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &r) const {
@@ -44,7 +52,7 @@ public:
 			const BSDF* bsdf = its.mesh->getBSDF();
 			// sample illumination from lights, add to path contribution
 			if (!bsdf->isSpecular()){
-				radiance += pathThroughput*UniformSampleAllLights(scene, ray, its, sampler)*texel;
+				radiance += pathThroughput*UniformSampleAllLights(scene, ray, its, sampler, m_samplePolicy)*texel;
 			}
 			// sample bsdf to get new path direction
 			BSDFQueryRecord bRec(its.toLocal((-ray.d)).normalized());
@@ -59,7 +67,7 @@ public:
 			ray = Ray3f(its.p, d );
 			// possibly termination
 			if (bounces > kSampleDepth) {
-#if 1
+#if 0
 				float continueProbability = std::min( 0.5f, pathThroughput.y() );
 				if ( sampler->next1D() > continueProbability ) {
 					break;
@@ -91,6 +99,7 @@ public:
 	}
 private:
 	int m_maxDepth;
+	ESamplePolicy m_samplePolicy;
 };
 
 NORI_REGISTER_CLASS(Path, "path");
